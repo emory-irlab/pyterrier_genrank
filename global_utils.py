@@ -11,3 +11,5 @@ def read_json_file(file_path):
         data = json.load(f)
     return data
 
+def cleanup(s1):
+    return "".join([x if x.isalnum() else " " for x in s1.strip()])
