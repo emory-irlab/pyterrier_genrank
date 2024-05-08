@@ -11,7 +11,7 @@ and [RankZephyr](https://arxiv.org/abs/2312.02724). A PyTerrier wrapper over the
 ### Installation
 
 ```bash
-pip install --upgrade https://github.com/emory-irlab/pyterrier_genrank
+pip install --upgrade git+https://github.com/emory-irlab/pyterrier_genrank.git
 ```
 
 ### PyTerrier Pipelines

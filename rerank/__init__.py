@@ -1,4 +1,4 @@
-from data import Candidate, Request, Query
+from rerank.data import Candidate, Request, Query
 from rerank.rank_listwise_os_llm import RankListwiseOSLLM
 
 from rerank.reranker import Reranker

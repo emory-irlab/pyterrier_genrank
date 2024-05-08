@@ -7,7 +7,7 @@ from typing import List
 from tqdm import tqdm
 
 from rerank.rankllm import RankLLM
-from data import Request, Result, DataWriter
+from rerank.data import Request, Result, DataWriter
 
 
 class Reranker:

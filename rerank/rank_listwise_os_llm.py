@@ -10,7 +10,7 @@ from ftfy import fix_text
 from transformers.generation import GenerationConfig
 
 from rerank.rankllm import PromptMode, RankLLM
-from data import Result
+from rerank.data import Result
 
 
 class RankListwiseOSLLM(RankLLM):

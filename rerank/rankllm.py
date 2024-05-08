@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Tuple, Union
 from ftfy import fix_text
 from tqdm import tqdm
 
-from data import RankingExecInfo, Request, Result
+from rerank.data import RankingExecInfo, Request, Result
 
 class PromptMode(Enum):
     UNSPECIFIED = "unspecified"
