@@ -1,0 +1,27 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  PyTerrier_Genrank: The PyTerrier Plugin for generative
+  rerankers
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Kaustubh
+    family-names: Dhole
+    email: kdhole@emory.edu
+    affiliation: Emory University
+    orcid: 'https://orcid.org/0009-0006-6907-2530'
+repository-code: 'https://github.com/emory-irlab/pyterrier_genrank'
+url: 'https://github.com/emory-irlab/pyterrier_genrank'
+abstract: >
+  The PyTerrier Plugin for Generative Rerankers like
+  RankVicuna and RankZephyr.
+keywords:
+  - large language models
+  - information retrieval
+  - generative reranker
+license: Apache-2.0
