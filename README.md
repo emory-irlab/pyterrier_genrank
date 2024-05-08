@@ -25,11 +25,11 @@ from rerank import LLMReRanker
 dataset = pt.get_dataset("irds:vaswani")
 docno2doctext = {doc['docno']: doc['text'] for doc in dataset.get_corpus_iter()}
 
-bm25 = pt.BatchRetrieve(dataset.get_index(), wmodel="BM25")
+bm25 = pt.BatchRetrieve(pt.get_dataset("vaswani").get_index(), wmodel="BM25")
 llm_reranker = LLMReRanker("castorini/rank_vicuna_7b_v1")
-llm_reranker = lambda df : llm_reranker.rerank_pyt(df, 100, docno2doctext)
+llm_reranker_pipe = lambda df : llm_reranker.rerank_pyt(df, 100, docno2doctext)
 
-genrank_pipeline = bm25 >> llm_reranker
+genrank_pipeline = bm25 >> llm_reranker_pipe
 ```
 The LLMReRanker function can take any 🤗HuggingFace model id. It has been tested using the following two reranking models for TREC-DL 2019:
 
