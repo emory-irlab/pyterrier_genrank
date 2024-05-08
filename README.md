@@ -20,7 +20,7 @@ Since this implementation uses listwise reranking, it is used a bit differently 
 
 ```python
 import pyterrier as pt
-from llm_reranker import LLMReRanker
+from rerank import LLMReRanker
 
 dataset = pt.get_dataset("irds:vaswani")
 docno2doctext = {doc['docno']: doc['text'] for doc in dataset.get_corpus_iter()}
