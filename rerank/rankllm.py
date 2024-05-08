@@ -1,3 +1,5 @@
+""" Files from the RankLLM repo at https://github.com/castorini/rank_llm """
+
 import copy
 import random
 import re
@@ -9,7 +11,6 @@ from ftfy import fix_text
 from tqdm import tqdm
 
 from data import RankingExecInfo, Request, Result
-
 
 class PromptMode(Enum):
     UNSPECIFIED = "unspecified"

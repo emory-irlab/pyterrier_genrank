@@ -6,7 +6,7 @@
 ![License: Apache](https://img.shields.io/badge/License-Apache2.0-yellow.svg)
 
 The [PyTerrier🐕](https://github.com/terrier-org/pyterrier) Plugin for listwise generative rerankers like [RankVicuna](https://arxiv.org/abs/2309.15088)
-and [RankZephyr](https://arxiv.org/abs/2312.02724). A PyTerrier wrapper over the implementation available at [RankLLM](https://github.com/castorini/rank_llm)
+and [RankZephyr](https://arxiv.org/abs/2312.02724). A PyTerrier wrapper over the implementation available at [RankLLM](https://github.com/castorini/rank_llm).
 
 ### Installation
 
@@ -31,7 +31,7 @@ llm_reranker = lambda df : llm_reranker.rerank_pyt(df, 100, docno2doctext)
 
 genrank_pipeline = bm25 >> llm_reranker
 ```
-The LLMReRanker function can take any 🤗HuggingFace model id. It has been tested using the following two models for TREC-DL 2019:
+The LLMReRanker function can take any 🤗HuggingFace model id. It has been tested using the following two reranking models for TREC-DL 2019:
 
 | Model                         | nDCG@10  |
 |-------------------------------|----------|
