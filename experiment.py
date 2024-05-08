@@ -6,11 +6,14 @@ from global_utils import cleanup
 from gen_reranker import GenerativeReranker
 #print(f"Using GPUs : CUDA_VISIBLE_DEVICES = {os.environ['CUDA_VISIBLE_DEVICES']}")
 import numpy as np
+
+from llm_reranker import LLMReRanker
+
+
 def print_seeds():
     print(f'numpy seed = {np.random.seed()}')
 
 scratchpath = "/local/scratch/kdhole"
-os.chdir(f'{scratchpath}/prompt-prf/terrier-prf')
 os.environ['HF_HOME'] = '/local/scratch/kdhole/multi-turn-tool-llm/huggingface'
 os.environ['IR_DATASETS_HOME']=f'{scratchpath}/prompt-prf/ir_datasets_download'
 if not pt.started():
@@ -49,9 +52,11 @@ def get_bm25_pipe(index_name, index):
 
 triplets = [['irds:msmarco-passage/trec-dl-2019/judged',  'msmarco_passage', 'text', 'text']]
 
-def save_setting(result_dfs):
+def save_setting(result_dfs, exp_name):
+    fname = f'{os.getcwd()}/results_{exp_name}.csv'
+    print(f'saving at {fname}')
     combined_df = pd.concat(result_dfs, ignore_index=True)
-    combined_df.to_csv(f'results.csv',index=False)
+    combined_df.to_csv(fname,index=False)
 
 def get_docid2text(dataset, field='text'):
     docno2doctext = {doc['docno']: doc[field] for doc in dataset.get_corpus_iter()}
@@ -60,18 +65,22 @@ def get_docid2text(dataset, field='text'):
 def run_experiment(EVALUATION_NAME, index_name, field):
     index, dataset, queries = get_index(EVALUATION_NAME, index_name, field)
     bm25 = get_bm25_pipe(index_name,index)
-    print(bm25.search('random query'))
     result_dfs = []
-    result = pt.Experiment([bm25], queries, dataset.get_qrels(), EVAL_METRICS, ['BM25'], verbose=True, batch_size=10)
+    result = pt.Experiment([bm25], queries, dataset.get_qrels(), EVAL_METRICS, ['BM25'],  round=3, verbose=True, batch_size=10)
     result_dfs.append(result)
-    save_setting(result_dfs)
+    save_setting(result_dfs, '')
 
-def run_genrank_experiment(genranker, EVALUATION_NAME, index_name, field):
+def run_experiment_rankllm(llm_reranker, EVALUATION_NAME, index_name, field, exp_name):
     index, dataset, queries = get_index(EVALUATION_NAME, index_name, field)
     bm25 = get_bm25_pipe(index_name,index)
-    r1 = bm25.search('random query')
-    reranked_frame = genranker.rerank(r1, 10)
-    print(reranked_frame)
+    docno2doctext = get_docid2text(dataset)
+    reranker = lambda df : llm_reranker.rerank_pyt(df, 100, docno2doctext)
+    reranking_pipe = bm25 >> reranker
+    result_dfs = []
+    result = pt.Experiment([bm25, reranking_pipe], queries, dataset.get_qrels(), EVAL_METRICS, ['BM25', 'BM25>>GenRank'],
+                           verbose=True, batch_size=1, round=3, baseline=0, correction='bonferroni')
+    result_dfs.append(result)
+    save_setting(result_dfs, exp_name)
 
 if __name__ == '__main__':
     triplet = triplets[0]
@@ -80,7 +89,5 @@ if __name__ == '__main__':
     index_name = triplet[1];
     field = triplet[2];
     doc_field = triplet[3]
-
-    run_experiment(EVALUATION_NAME, index_name, field)
-    genranker = GenerativeReranker("meta-llama/Meta-Llama-3-8B-Instruct")
-    run_genrank_experiment(genranker, EVALUATION_NAME, index_name, field)
+    llm_reranker = LLMReRanker("castorini/rank_vicuna_7b_v1")
+    run_experiment_rankllm(llm_reranker, EVALUATION_NAME, index_name, field, 'rank_vicuna_7b_v1')

@@ -1,2 +1,9 @@
 python-terrier
 transformers
+torch
+sentencepiece
+protobuf
+accelerate
+dacite>=1.8.1
+ftfy>=6.2.0
+fschat[model_worker]>=0.2.36
