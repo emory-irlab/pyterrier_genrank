@@ -3,15 +3,16 @@ from rerank.rank_listwise_os_llm import RankListwiseOSLLM
 
 from rerank.reranker import Reranker
 import pandas as pd
+import pyterrier as pt
 
-
-class LLMReRanker(object):
+class LLMReRanker(pt.Transformer):
     def __init__(self, model_path="castorini/rank_vicuna_7b_v1", num_few_shot_examples=0, top_k_candidates=100,
                  window_size=20,
                  shuffle_candidates=False,
                  print_prompts_responses=False, step_size=10, variable_passages=True,
                  system_message='You are RankLLM, an intelligent assistant that can rank passages based on their relevancy to the query.',
-                 num_gpus=1):
+                 num_gpus=1,
+                 text_key='text'):
         self.window_size = window_size
         self.shuffle_candidates = shuffle_candidates
         self.top_k_candidates = top_k_candidates
@@ -24,16 +25,14 @@ class LLMReRanker(object):
                                        system_message=system_message,
                                        )
         self.reranker = Reranker(self.agent)
-
-    def rerank_pyt(self, retrieved, topk, docno2doctext):
-        retrieved = retrieved.copy().head(topk)
+        self.text_key = text_key # to allow fields other than 'text' to be used for reranking
+    def transform(self, retrieved):
+        retrieved = retrieved.copy()
         query = Query(text=retrieved.iloc[0].query, qid=retrieved.iloc[0].qid)
         candidates = []
-        for i, row in enumerate(retrieved.itertuples()):
-            doc_text = docno2doctext.get(row.docno)
-            if doc_text is not None:
-                candidate = Candidate(docid=row.docno, score=row.score, doc={"text": doc_text})
-                candidates.append(candidate)
+        for i, row in enumerate(retrieved.itertuples(index=False, name='Candidate')):
+            candidate = Candidate(docid=row.docno, score=row.score, doc={'text' : getattr(row, self.text_key)})
+            candidates.append(candidate)
         request = Request(query=query, candidates=candidates)
         rerank_results = self.reranker.rerank(
             request,
@@ -44,13 +43,10 @@ class LLMReRanker(object):
             step=self.step_size,
         )
         retrieved.rename(columns={'score': 'score_0'}, inplace=True)
-        rank = 1
-        for candidate in rerank_results.candidates:
-            candidate.score = 1 / rank
-            rank += 1
         reranked_df = pd.DataFrame({
             'docno': [c.docid for c in rerank_results.candidates],
-            'score': [c.score for c in rerank_results.candidates],
+            'score': [1/(r+1) for r, c in enumerate(rerank_results.candidates)], # reciprocal ranking
+            'rank' : [r for r, c in enumerate(rerank_results.candidates)]
         })
         result_df = retrieved.merge(reranked_df, on='docno', suffixes=('_orig', ''))
         return result_df
