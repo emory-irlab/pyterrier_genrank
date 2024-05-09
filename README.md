@@ -22,11 +22,11 @@ Since this implementation uses listwise reranking, it is used a bit differently 
 
 ```python
 import pyterrier as pt
-from llm_reranker import LLMReRanker
+from rerank import LLMReRanker
 
 dataset = pt.get_dataset("irds:vaswani")
 
-bm25 = pt.BatchRetrieve(dataset.get_index(), wmodel="BM25")
+bm25 = pt.BatchRetrieve(pt.get_dataset("vaswani").get_index(), wmodel="BM25")
 llm_reranker = LLMReRanker("castorini/rank_vicuna_7b_v1")
 
 genrank_pipeline = bm25 % 100 >> pt.text.get_text(index, 'text') >> llm_reranker
@@ -60,14 +60,4 @@ llm_reranker = LLMReRanker(
 ```
 
 ### Credits
-
 Kaustubh Dhole, [IRLab](https://ir.mathcs.emory.edu/), Emory University
-
-```bibtex
-@software{Dhole_PyTerrier_Genrank,
-    author = {Dhole, Kaustubh},
-    license = {Apache-2.0},
-    title = {{PyTerrier\_Genrank: The PyTerrier Plugin for generative rerankers}},
-    url = {https://github.com/emory-irlab/pyterrier_genrank}
-}
-```
