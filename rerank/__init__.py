@@ -1,9 +1,13 @@
+from rerank.api_keys import get_openai_api_key, get_azure_openai_args
 from rerank.data import Candidate, Request, Query
+from rerank.rank_gpt import SafeOpenai
 from rerank.rank_listwise_os_llm import RankListwiseOSLLM
+from rerank.rankllm import PromptMode
 
 from rerank.reranker import Reranker
 import pandas as pd
 import pyterrier as pt
+
 
 class LLMReRanker(pt.Transformer):
     def __init__(self, model_path="castorini/rank_vicuna_7b_v1", num_few_shot_examples=0, top_k_candidates=100,
@@ -11,27 +15,45 @@ class LLMReRanker(pt.Transformer):
                  shuffle_candidates=False,
                  print_prompts_responses=False, step_size=10, variable_passages=True,
                  system_message='You are RankLLM, an intelligent assistant that can rank passages based on their relevancy to the query.',
+                 prompt_mode: PromptMode = PromptMode.RANK_GPT,
+                 context_size: int = 4096,
                  num_gpus=1,
-                 text_key='text'):
+                 text_key='text',
+                 use_azure_openai=False):
         self.window_size = window_size
         self.shuffle_candidates = shuffle_candidates
         self.top_k_candidates = top_k_candidates
         self.print_prompts_responses = print_prompts_responses
         self.step_size = step_size
-        self.agent = RankListwiseOSLLM(model=model_path,
-                                       num_few_shot_examples=num_few_shot_examples,
-                                       num_gpus=num_gpus,
-                                       variable_passages=variable_passages,
-                                       system_message=system_message,
-                                       )
+        # Construct Rerank Agent
+        if "gpt" in model_path or use_azure_openai:
+            openai_keys = get_openai_api_key()
+            self.agent = SafeOpenai(
+                model=model_path,
+                context_size=context_size,
+                prompt_mode=prompt_mode,
+                num_few_shot_examples=num_few_shot_examples,
+                keys=openai_keys,
+                **(get_azure_openai_args() if use_azure_openai else {}),
+            )
+        else:
+            self.agent = RankListwiseOSLLM(model=model_path,
+                                           num_few_shot_examples=num_few_shot_examples,
+                                           num_gpus=num_gpus,
+                                           prompt_mode=prompt_mode,
+                                           context_size=context_size,
+                                           variable_passages=variable_passages,
+                                           system_message=system_message,
+                                           )
         self.reranker = Reranker(self.agent)
-        self.text_key = text_key # to allow fields other than 'text' to be used for reranking
+        self.text_key = text_key  # to allow fields other than 'text' to be used for reranking
+
     def transform(self, retrieved):
         retrieved = retrieved.copy()
         query = Query(text=retrieved.iloc[0].query, qid=retrieved.iloc[0].qid)
         candidates = []
         for i, row in enumerate(retrieved.itertuples(index=False, name='Candidate')):
-            candidate = Candidate(docid=row.docno, score=row.score, doc={'text' : getattr(row, self.text_key)})
+            candidate = Candidate(docid=row.docno, score=row.score, doc={'text': getattr(row, self.text_key)})
             candidates.append(candidate)
         request = Request(query=query, candidates=candidates)
         rerank_results = self.reranker.rerank(
@@ -45,8 +67,8 @@ class LLMReRanker(pt.Transformer):
         retrieved.rename(columns={'score': 'score_0'}, inplace=True)
         reranked_df = pd.DataFrame({
             'docno': [c.docid for c in rerank_results.candidates],
-            'score': [1/(r+1) for r, c in enumerate(rerank_results.candidates)], # reciprocal ranking
-            'rank' : [r for r, c in enumerate(rerank_results.candidates)]
+            'score': [1 / (r + 1) for r, c in enumerate(rerank_results.candidates)],  # reciprocal ranking
+            'rank': [r for r, c in enumerate(rerank_results.candidates)]
         })
         result_df = retrieved.merge(reranked_df, on='docno', suffixes=('_orig', ''))
         return result_df

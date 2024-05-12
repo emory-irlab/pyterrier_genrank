@@ -7,3 +7,4 @@ accelerate
 dacite>=1.8.1
 ftfy>=6.2.0
 fschat[model_worker]>=0.2.36
+openai>=1.23.6
