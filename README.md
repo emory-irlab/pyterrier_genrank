@@ -6,8 +6,7 @@
 ![License: Apache](https://img.shields.io/badge/License-Apache2.0-yellow.svg)
 
 The [PyTerrier🐕](https://github.com/terrier-org/pyterrier) Plugin for listwise generative rerankers
-like [RankVicuna](https://arxiv.org/abs/2309.15088)
-and [RankZephyr](https://arxiv.org/abs/2312.02724). A PyTerrier wrapper over the implementation available
+like [RankGPT](https://aclanthology.org/2023.emnlp-main.923/), [RankVicuna](https://arxiv.org/abs/2309.15088), [RankZephyr](https://arxiv.org/abs/2312.02724). A PyTerrier wrapper over the implementation available
 at [RankLLM](https://github.com/castorini/rank_llm).
 
 ### Installation
@@ -16,7 +15,7 @@ at [RankLLM](https://github.com/castorini/rank_llm).
 pip install --upgrade git+https://github.com/emory-irlab/pyterrier_genrank.git
 ```
 
-### PyTerrier Pipelines
+### Example Usage
 
 Since this implementation uses listwise reranking, it is used a bit differently than other rerankers.
 
@@ -34,6 +33,11 @@ genrank_pipeline = bm25 % 100 >> pt.text.get_text(index, 'text') >> llm_reranker
 genrank_pipeline.search('best places to have Indian food')
 ```
 
+If you want to use RankGPT, ensure that you have your [api key set in an environment file](rerank/api_keys.py). Then load the reranker with the OpenAI model string.
+```python
+llm_reranker = LLMReRanker("gpt-35-turbo-1106", use_azure_openai=True)
+```
+
 The LLMReRanker function can take any 🤗HuggingFace model id. It has been tested using the following two reranking models
 for TREC-DL 2019:
 
@@ -42,21 +46,26 @@ for TREC-DL 2019:
 | BM25                          | .48     |
 | BM25 + rank_vicuna_7b_v1      | .67     |
 | BM25 + rank_zephyr_7b_v1_full | .71     |
+| BM25 + gpt-35-turbo-1106      | .66     |
+| BM25 + gpt-4-turbo-0409       | .71     |
+
+
 
 The [reranker interface](rerank/__init__.py) takes additional parameters that could be modified.
 
 ```python
-llm_reranker = LLMReRanker(
-    model_path="castorini/rank_vicuna_7b_v1",
-    num_few_shot_examples=0,
-    top_k_candidates=100,
-    window_size=20,
-    shuffle_candidates=False,
-    print_prompts_responses=False,
-    step_size=10, variable_passages=True,
-    system_message='You are RankLLM, an intelligent assistant that can rank passages based on their relevancy to the query.',
-    num_gpus=1,
-    text_key='text')
+llm_reranker = LLMReRanker(model_path="castorini/rank_vicuna_7b_v1", 
+                           num_few_shot_examples=0,
+                           top_k_candidates=100,
+                           window_size=20,
+                           shuffle_candidates=False,
+                           print_prompts_responses=False, step_size=10, variable_passages=True,
+                           system_message="You are RankLLM, an intelligent assistant that can rank passages based on their relevancy to the query.",
+                           prompt_mode: PromptMode = PromptMode.RANK_GPT,
+                           context_size: int = 4096,
+                           num_gpus = 1,
+                           text_key = 'text',
+                           use_azure_openai = False)
 ```
 
 ### Reference
