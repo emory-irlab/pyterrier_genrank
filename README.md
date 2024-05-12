@@ -59,5 +59,13 @@ llm_reranker = LLMReRanker(
     text_key='text')
 ```
 
-### Credits
-Kaustubh Dhole, [IRLab](https://ir.mathcs.emory.edu/), Emory University
+### Reference
+```bibtex
+@software{Dhole_PyTerrier_Genrank,
+    author = {Dhole, Kaustubh},
+    license = {Apache-2.0},
+    institution = {Emory University},
+    title = {{PyTerrier\_Genrank: The PyTerrier Plugin for generative rerankers}},
+    url = {https://github.com/emory-irlab/pyterrier_genrank}
+}
+```
