@@ -75,6 +75,7 @@ llm_reranker = LLMReRanker(model_path="castorini/rank_vicuna_7b_v1",
     license = {Apache-2.0},
     institution = {Emory University},
     title = {{PyTerrier\_Genrank: The PyTerrier Plugin for generative rerankers}},
-    url = {https://github.com/emory-irlab/pyterrier_genrank}
+    url = {https://github.com/emory-irlab/pyterrier_genrank},
+    year = {2024}
 }
 ```
