@@ -21,6 +21,9 @@ Since this implementation uses listwise reranking, it is used a bit differently 
 
 ```python
 import pyterrier as pt
+if not pt.started():
+    pt.init()
+
 from rerank import LLMReRanker
 
 dataset = pt.get_dataset("irds:vaswani")
