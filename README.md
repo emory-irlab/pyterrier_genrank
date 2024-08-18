@@ -1,4 +1,3 @@
-[# PyTerrier_GenRank
 
 ![](https://img.shields.io/badge/PRs-welcome-brightgreen)
 <img src="https://img.shields.io/badge/Version-1.0-lightblue.svg" alt="Version">
@@ -83,4 +82,3 @@ llm_reranker = LLMReRanker(model_path="castorini/rank_vicuna_7b_v1",
     year = {2024}
 }
 ```
-]()

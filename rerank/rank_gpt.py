@@ -160,7 +160,7 @@ class SafeOpenai(RankLLM):
             },
             {
                 "role": "user",
-                "content": self.prefix_instruction_fn,
+                "content": self.prefix_instruction_fn(num, query),
             },
             {"role": "assistant", "content": "Okay, please provide the passages."},
         ]
