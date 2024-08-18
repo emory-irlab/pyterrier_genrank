@@ -15,6 +15,9 @@ class LLMReRanker(pt.Transformer):
                  shuffle_candidates=False,
                  print_prompts_responses=False, step_size=10, variable_passages=True,
                  system_message='You are RankLLM, an intelligent assistant that can rank passages based on their relevancy to the query.',
+                 prefix_instruction_fn=lambda num,
+                                              query: f"I will provide you with {num} passages, each indicated by number identifier []. \nRank the passages based on their relevance to query: {query}.",
+                 suffix_instruction="You should rank them based on their relevance to the search query. The passages should be listed in descending order using identifiers. The most relevant passages should be listed first. The output format should be [] > [], e.g., [1] > [2]. Only response the ranking results, do not say any word or explain.",
                  prompt_mode: PromptMode = PromptMode.RANK_GPT,
                  context_size: int = 4096,
                  num_gpus=1,
@@ -34,6 +37,9 @@ class LLMReRanker(pt.Transformer):
                 prompt_mode=prompt_mode,
                 num_few_shot_examples=num_few_shot_examples,
                 keys=openai_keys,
+                system_message=system_message,
+                prefix_instruction_fn=prefix_instruction_fn,
+                suffix_instruction=suffix_instruction,
                 **(get_azure_openai_args() if use_azure_openai else {}),
             )
         else:

@@ -25,6 +25,9 @@ class SafeOpenai(RankLLM):
         api_type: str = None,
         api_base: str = None,
         api_version: str = None,
+        system_message: str = "You are RankGPT, an intelligent assistant that can rank passages based on their relevancy to the query.",
+        prefix_instruction_fn = lambda num, query: f"I will provide you with {num} passages, each indicated by number identifier []. \nRank the passages based on their relevance to query: {query}.",
+        suffix_instruction: str = "You should rank them based on their relevance to the search query. The passages should be listed in descending order using identifiers. The most relevant passages should be listed first. The output format should be [] > [], e.g., [1] > [2]. Only response the ranking results, do not say any word or explain."
     ) -> None:
         """
         Creates instance of the SafeOpenai class, a specialized version of RankLLM designed for safely handling OpenAI API calls with
@@ -71,6 +74,9 @@ class SafeOpenai(RankLLM):
         openai.proxy = proxy
         openai.api_key = self._keys[self._cur_key_id]
         self.use_azure_ai = False
+        self.system_message = system_message
+        self.prefix_instruction_fn = prefix_instruction_fn
+        self.suffix_instruction = suffix_instruction
 
         if all([api_type, api_base, api_version]):
             # See https://learn.microsoft.com/en-US/azure/ai-services/openai/reference for list of supported versions
@@ -150,17 +156,17 @@ class SafeOpenai(RankLLM):
         return [
             {
                 "role": "system",
-                "content": "You are RankGPT, an intelligent assistant that can rank passages based on their relevancy to the query.",
+                "content": self.system_message,
             },
             {
                 "role": "user",
-                "content": f"I will provide you with {num} passages, each indicated by number identifier []. \nRank the passages based on their relevance to query: {query}.",
+                "content": self.prefix_instruction_fn,
             },
             {"role": "assistant", "content": "Okay, please provide the passages."},
         ]
 
     def _get_suffix_for_rank_gpt_prompt(self, query: str, num: int) -> str:
-        return f"Search Query: {query}. \nRank the {num} passages above based on their relevance to the search query. The passages should be listed in descending order using identifiers. The most relevant passages should be listed first. The output format should be [] > [], e.g., [1] > [2]. Only response the ranking results, do not say any word or explain."
+        return f"Search Query: {query}. \nRank the {num} passages above. " + self.suffix_instruction
 
     def num_output_tokens(self, current_window_size: Optional[int] = None) -> int:
         if current_window_size is None:

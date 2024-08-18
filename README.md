@@ -1,4 +1,4 @@
-# PyTerrier_GenRank
+[# PyTerrier_GenRank
 
 ![](https://img.shields.io/badge/PRs-welcome-brightgreen)
 <img src="https://img.shields.io/badge/Version-1.0-lightblue.svg" alt="Version">
@@ -60,7 +60,8 @@ llm_reranker = LLMReRanker(model_path="castorini/rank_vicuna_7b_v1",
                            window_size=20,
                            shuffle_candidates=False,
                            print_prompts_responses=False, step_size=10, variable_passages=True,
-                           system_message="You are RankLLM, an intelligent assistant that can rank passages based on their relevancy to the query.",
+                           system_message='You are RankLLM, an intelligent assistant that can rank passages based on their relevancy to the query.',
+                           prefix_instruction_fn=lambda num, query: f"I will provide you with {num} passages, each indicated by number identifier []. \nRank the passages based on their relevance to query: {query}.",
                            prompt_mode: PromptMode = PromptMode.RANK_GPT,
                            context_size: int = 4096,
                            num_gpus = 1,
@@ -79,3 +80,4 @@ llm_reranker = LLMReRanker(model_path="castorini/rank_vicuna_7b_v1",
     year = {2024}
 }
 ```
+]()
