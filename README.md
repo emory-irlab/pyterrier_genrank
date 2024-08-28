@@ -25,7 +25,7 @@ from rerank import LLMReRanker
 
 dataset = pt.get_dataset("irds:vaswani")
 
-bm25 = pt.terrier.Retriever.from_dataset(pt.get_dataset("vaswani"), wmodel="BM25")
+pt.terrier.Retriever.from_dataset("vaswani", "terrier_stemmed", wmodel="BM25")
 llm_reranker = LLMReRanker("castorini/rank_vicuna_7b_v1")
 
 genrank_pipeline = bm25 % 100 >> pt.text.get_text(index, 'text') >> llm_reranker
