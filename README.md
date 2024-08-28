@@ -20,14 +20,12 @@ Since this implementation uses listwise reranking, it is used a bit differently 
 
 ```python
 import pyterrier as pt
-if not pt.started():
-    pt.init()
 
 from rerank import LLMReRanker
 
 dataset = pt.get_dataset("irds:vaswani")
 
-bm25 = pt.BatchRetrieve(pt.get_dataset("vaswani").get_index(), wmodel="BM25")
+bm25 = pt.terrier.Retriever.from_dataset(pt.get_dataset("vaswani"), wmodel="BM25")
 llm_reranker = LLMReRanker("castorini/rank_vicuna_7b_v1")
 
 genrank_pipeline = bm25 % 100 >> pt.text.get_text(index, 'text') >> llm_reranker
