@@ -25,6 +25,8 @@ class RankListwiseOSLLM(RankLLM):
         variable_passages: bool = False,
         window_size: int = 20,
         system_message: str = None,
+        prefix_instruction_fn = lambda num, query: f"I will provide you with {num} passages, each indicated by a numerical identifier []. Rank the passages based on their relevance to the search query: {query}.\n",
+        suffix_instruction_fn = lambda num, query: f"Search Query: {query}.\nRank the {num} passages above based on their relevance to the search query. All the passages should be included and listed using identifiers, in descending order of relevance. The output format should be [] > [], e.g., [4] > [2], Only respond with the ranking results, do not say any word or explain."
     ) -> None:
         """
          Creates instance of the RankListwiseOSLLM class, an extension of RankLLM designed for performing listwise ranking of passages using
@@ -68,7 +70,12 @@ class RankListwiseOSLLM(RankLLM):
         self._variable_passages = variable_passages
         self._window_size = window_size
         self._system_message = system_message
+        self.prefix_instruction_fn = prefix_instruction_fn
+        self.suffix_instruction_fn = suffix_instruction_fn
         self._output_token_estimate = None
+        if self._variable_passages:
+            example_ordering = "[2] > [1]"
+            self.suffix_instruction_fn = lambda num, query: f"Search Query: {query}.\nRank the {num} passages above based on their relevance to the search query. All the passages should be included and listed using identifiers, in descending order of relevance. The output format should be [] > [], e.g., {example_ordering}, Only respond with the ranking results, do not say any word or explain."
         if num_few_shot_examples > 0:
             with open("data/output_v2_aug_filtered.jsonl", "r") as json_file:
                 self._examples = list(json_file)[1:-1]
@@ -118,12 +125,10 @@ class RankListwiseOSLLM(RankLLM):
             return _output_token_estimate
 
     def _add_prefix_prompt(self, query: str, num: int) -> str:
-        return f"I will provide you with {num} passages, each indicated by a numerical identifier []. Rank the passages based on their relevance to the search query: {query}.\n"
+        return self.prefix_instruction_fn(num, query)
 
     def _add_post_prompt(self, query: str, num: int) -> str:
-        example_ordering = "[2] > [1]" if self._variable_passages else "[4] > [2]"
-        return f"Search Query: {query}.\nRank the {num} passages above based on their relevance to the search query. All the passages should be included and listed using identifiers, in descending order of relevance. The output format should be [] > [], e.g., {example_ordering}, Only respond with the ranking results, do not say any word or explain."
-
+        return self.suffix_instruction_fn(num, query)
     def _add_few_shot_examples(self, conv):
         for _ in range(self._num_few_shot_examples):
             ex = random.choice(self._examples)

@@ -51,6 +51,8 @@ class LLMReRanker(pt.Transformer):
                                            context_size=context_size,
                                            variable_passages=variable_passages,
                                            system_message=system_message,
+                                           prefix_instruction_fn=prefix_instruction_fn,
+                                           suffix_instruction_fn=suffix_instruction_fn
                                            )
         self.reranker = Reranker(self.agent)
         self.text_key = text_key  # to allow fields other than 'text' to be used for reranking
