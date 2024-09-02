@@ -6,7 +6,7 @@
 
 The [PyTerrier🐕](https://github.com/terrier-org/pyterrier) Plugin for listwise generative rerankers
 like [RankGPT](https://aclanthology.org/2023.emnlp-main.923/), [RankVicuna](https://arxiv.org/abs/2309.15088), [RankZephyr](https://arxiv.org/abs/2312.02724). A PyTerrier wrapper over the implementation available
-at [RankLLM](https://github.com/castorini/rank_llm).
+at [RankLLM](https://github.com/castorini/rank_llm). 
 
 ### Installation
 
@@ -20,14 +20,12 @@ Since this implementation uses listwise reranking, it is used a bit differently 
 
 ```python
 import pyterrier as pt
-if not pt.started():
-    pt.init()
 
 from rerank import LLMReRanker
 
 dataset = pt.get_dataset("irds:vaswani")
 
-bm25 = pt.BatchRetrieve(pt.get_dataset("vaswani").get_index(), wmodel="BM25")
+bm25 = pt.terrier.Retriever.from_dataset("vaswani", "terrier_stemmed", wmodel="BM25")
 llm_reranker = LLMReRanker("castorini/rank_vicuna_7b_v1")
 
 genrank_pipeline = bm25 % 100 >> pt.text.get_text(index, 'text') >> llm_reranker
@@ -43,14 +41,17 @@ llm_reranker = LLMReRanker("gpt-35-turbo-1106", use_azure_openai=True)
 The LLMReRanker function can take any 🤗HuggingFace model id. It has been tested using the following two reranking models
 for TREC-DL 2019:
 
-| Model                         | nDCG@10 |
-|-------------------------------|---------|
-| BM25                          | .48     |
-| BM25 + rank_vicuna_7b_v1      | .67     |
-| BM25 + rank_zephyr_7b_v1_full | .71     |
-| BM25 + gpt-35-turbo-1106      | .66     |
-| BM25 + gpt-4-turbo-0409       | .71     |
+| Model                                   | nDCG@10 |
+|-----------------------------------------|---------|
+| BM25                                    | .48     |
+| BM25 + rank_vicuna_7b_v1                | .67     |
+| BM25 + rank_zephyr_7b_v1_full           | .71     |
+| BM25 + gpt-35-turbo-1106                | .66     |
+| BM25 + gpt-4-turbo-0409                 | .71     |
+| BM25 + gpt-4o-mini                      | .71     |
+| BM25 + Llama-Spark (8B zero-shot)       | .61     |
 
+Read the paper for detailed results [here](PyTerrier_GenRank_Paper.pdf). 
 
 
 The [reranker interface](rerank/__init__.py) takes additional parameters that could be modified.
@@ -78,7 +79,7 @@ llm_reranker = LLMReRanker(model_path="castorini/rank_vicuna_7b_v1",
     author = {Dhole, Kaustubh},
     license = {Apache-2.0},
     institution = {Emory University},
-    title = {{PyTerrier\_Genrank: The PyTerrier Plugin for generative rerankers}},
+    title = {{PyTerrier-GenRank: The PyTerrier Plugin for Reranking with Large Language Models}},
     url = {https://github.com/emory-irlab/pyterrier_genrank},
     year = {2024}
 }
