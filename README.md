@@ -4,8 +4,8 @@
 ![Python version](https://img.shields.io/badge/lang-python-important)
 ![License: Apache](https://img.shields.io/badge/License-Apache2.0-yellow.svg)
 
-The [PyTerrier🐕](https://github.com/terrier-org/pyterrier) Plugin for listwise generative rerankers
-like [RankGPT](https://aclanthology.org/2023.emnlp-main.923/), [RankVicuna](https://arxiv.org/abs/2309.15088), [RankZephyr](https://arxiv.org/abs/2312.02724). A PyTerrier wrapper over the implementation available
+The [PyTerrier🐕](https://github.com/terrier-org/pyterrier) Plugin for listwise & pointwise generative rerankers
+like [RankGPT](https://aclanthology.org/2023.emnlp-main.923/), [RankVicuna](https://arxiv.org/abs/2309.15088), [RankZephyr](https://arxiv.org/abs/2312.02724), [RankLLama](https://arxiv.org/abs/2310.08319). A PyTerrier wrapper over the implementation available
 at [RankLLM](https://github.com/castorini/rank_llm). 
 
 ### Installation
@@ -36,6 +36,11 @@ genrank_pipeline.search('best places to have Indian food')
 If you want to use RankGPT, ensure that you have your [api key set in an environment file](rerank/api_keys.py). Then load the reranker with the OpenAI model string.
 ```python
 llm_reranker = LLMReRanker("gpt-35-turbo-1106", use_azure_openai=True)
+```
+
+We recently added functionality for pointwise reranker RankLLama too:
+```python
+llm_reranker = PointwiseReranker('castorini/rankllama-v1-7b-lora-passage')
 ```
 
 The LLMReRanker function can take any 🤗HuggingFace model id. It has been tested using the following two reranking models
