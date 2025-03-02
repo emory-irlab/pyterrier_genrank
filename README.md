@@ -40,6 +40,7 @@ llm_reranker = LLMReRanker("gpt-35-turbo-1106", use_azure_openai=True)
 
 We recently added functionality for pointwise reranker RankLLama too:
 ```python
+from rerank import PointwiseReranker
 llm_reranker = PointwiseReranker('castorini/rankllama-v1-7b-lora-passage')
 ```
 
