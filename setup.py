@@ -16,7 +16,7 @@ with open('requirements.txt', 'rt') as f:
 
 setup(
     name="pyterrier-genrerank",
-    version="0.0.23",
+    version="0.0.24",
     author="Kaustubh Dhole",
     author_email="kaustubh.dhole [AT] emory.edu",
     description="PyTerrier Interface for Generative Rerankers",
