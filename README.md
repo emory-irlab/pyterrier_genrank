@@ -45,7 +45,7 @@ llm_reranker = PointwiseReranker('castorini/rankllama-v1-7b-lora-passage')
 
 ```python
 from rerank import Rank1Reranker
-llm_reranker = Rank1Reranker('castorini/rankllama-v1-7b-lora-passage')
+llm_reranker = Rank1Reranker("jhu-clsp/rank1-7b")
 ```
 
 
