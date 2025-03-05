@@ -1,4 +1,3 @@
-from ms_marco_gpt35 import llm_reranker
 ![](https://img.shields.io/badge/PRs-welcome-brightgreen)
 <img src="https://img.shields.io/badge/Version-1.0-lightblue.svg" alt="Version">
 ![Python version](https://img.shields.io/badge/lang-python-important)
@@ -6,7 +5,7 @@ from ms_marco_gpt35 import llm_reranker
 
 The [PyTerrier🐕](https://github.com/terrier-org/pyterrier) Plugin for listwise, pointwise and reasoning based (long CoT) generative rerankers
 like [RankGPT](https://aclanthology.org/2023.emnlp-main.923/), [RankVicuna](https://arxiv.org/abs/2309.15088), [RankZephyr](https://arxiv.org/abs/2312.02724), [RankLLama](https://arxiv.org/abs/2310.08319). A PyTerrier wrapper over the implementation available
-at [RankLLM](https://github.com/castorini/rank_llm). 
+at [RankLLM](https://github.com/castorini/rank_llm), [Rank1](https://github.com/orionw/rank1). 
 
 ### Installation
 
@@ -38,7 +37,7 @@ If you want to use RankGPT, ensure that you have your [api key set in an environ
 llm_reranker = LLMReRanker("gpt-35-turbo-1106", use_azure_openai=True)
 ```
 
-We recently added functionality for pointwise reranker RankLLama and reasoning based rerankers [Rank1](https://github.com/orionw/rank1) too:
+We recently added functionality for pointwise reranker RankLLama and reasoning based rerankers Rank1 too:
 ```python
 from rerank import PointwiseReranker
 llm_reranker = PointwiseReranker('castorini/rankllama-v1-7b-lora-passage')
@@ -46,8 +45,10 @@ llm_reranker = PointwiseReranker('castorini/rankllama-v1-7b-lora-passage')
 
 ```python
 from rerank import Rank1Reranker
-llm_reranker = Rank1Reranker()
+llm_reranker = Rank1Reranker('castorini/rankllama-v1-7b-lora-passage')
 ```
+
+
 
 The LLMReRanker function can take any 🤗HuggingFace model id. It has been tested using the following two reranking models
 for TREC-DL 2019:
