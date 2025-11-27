@@ -1,4 +1,5 @@
 import pyterrier as pt
+import pyterrier_alpha as pta
 
 from rerank.api_keys import get_openai_api_key, get_azure_openai_args
 from rerank.data import Candidate, Request, Query
@@ -61,6 +62,9 @@ class LLMReRanker(pt.Transformer):
         self.ushaped_positioning = ushaped_positioning
 
     def transform(self, retrieved):
+        pta.validate.result_frame(retrieved, extra_columns=['query', self.text_key])
+        if not len(retrieved):
+            return pd.DataFrame([], columns=retrieved.columns.tolist() + ["score_0", "docno_orig"])
         retrieved = retrieved.copy()
         query = Query(text=retrieved.iloc[0].query, qid=retrieved.iloc[0].qid)
         candidates = []
@@ -138,6 +142,14 @@ class PointwiseReranker(pt.Transformer):
         Returns:
           A DataFrame with updated 'score' and 'rank' columns.
         """
+        # inspection support
+        pta.validate.result_frame(retrieved, extra_columns=['query', self.text_key])
+        if not len(retrieved):
+            cols = retrieved.columns.tolist()
+            if 'score' in cols:
+                cols += ["score_orig"]
+            return pd.DataFrame([], columns=cols)
+        
         retrieved = retrieved.copy()
         # Optionally preserve the original score.
         if 'score' in retrieved.columns:
@@ -409,6 +421,11 @@ class Rank1Reranker(pt.Transformer):
         Returns:
           A DataFrame with new "score" and "rank" columns.
         """
+        pta.validate.result_frame(retrieved, extra_columns=['query', self.text_key])
+        if not len(retrieved):
+            cols = retrieved.columns.tolist()
+            return pd.DataFrame([], columns=cols)
+        
         retrieved = retrieved.copy()
         # Extract the query from the first row.
         query = retrieved.iloc[0].query
