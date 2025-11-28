@@ -8,7 +8,7 @@ from enum import Enum
 from typing import Any, Dict, List, Tuple, Union
 
 from ftfy import fix_text
-from tqdm import tqdm
+from pyterrier import tqdm
 
 from rerank.data import RankingExecInfo, Request, Result
 
@@ -248,7 +248,7 @@ class RankLLM(ABC):
         output_token_count = 0
         # Go through the retrieval result using the sliding window and count the number of tokens for generated prompts.
         # This is an estimated cost analysis since the actual prompts' length will depend on the ranking.
-        for result in tqdm(retrieved_results):
+        for result in tqdm(retrieved_results, unit='d'):
             end_pos = rank_end
             start_pos = rank_end - window_size
             while start_pos >= rank_start:
