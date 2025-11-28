@@ -27,10 +27,12 @@ dataset = pt.get_dataset("irds:vaswani")
 bm25 = pt.terrier.Retriever.from_dataset("vaswani", "terrier_stemmed", wmodel="BM25")
 llm_reranker = LLMReRanker("castorini/rank_vicuna_7b_v1")
 
-genrank_pipeline = bm25 % 100 >> pt.text.get_text(index, 'text') >> llm_reranker
+genrank_pipeline = bm25 % 100 >> pt.text.get_text(dataset, 'text') >> llm_reranker
 
 genrank_pipeline.search('best places to have Indian food')
 ```
+The resulting pipeline looks as follows:
+![Example pipeline diagram](pipeline.png)
 
 If you want to use RankGPT, ensure that you have your [api key set in an environment file](rerank/api_keys.py). Then load the reranker with the OpenAI model string.
 ```python
@@ -65,6 +67,7 @@ for TREC-DL 2019:
 
 Read the paper for detailed results [here](PyTerrier_GenRank_Paper.pdf). 
 
+See [this notebook](examples/trecd2019.ipynb) for an example of how to run experiments like this.
 
 The [reranker interface](rerank/__init__.py) takes additional parameters that could be modified.
 
