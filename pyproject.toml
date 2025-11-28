@@ -8,7 +8,7 @@ version = "0.0.25"
 description = "PyTerrier Interface for Generative Rerankers"
 readme = "README.md"
 requires-python = ">=3.6"
-authors = [{ name = "Kaustubh Dhole", email = "kaustubh.dhole [AT] emory.edu" }]
+authors = [{ name = "Kaustubh Dhole", email = "kaustubh.dhole@emory.edu" }]
 keywords = [ "information retrieval", "large language models", "generative reranking"]
 urls = { "homepage" = "https://github.com/emory-irlab/pyterrier_genrank" }
 dynamic = ["dependencies"]
