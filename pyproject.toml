@@ -11,9 +11,7 @@ requires-python = ">=3.6"
 authors = [{ name = "Kaustubh Dhole", email = "kaustubh.dhole [AT] emory.edu" }]
 keywords = [ "information retrieval", "large language models", "generative reranking"]
 urls = { "homepage" = "https://github.com/emory-irlab/pyterrier_genrank" }
-
-[tool.setuptools]
-packages = { find = {} }
+dynamic = ["dependencies"]
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}
