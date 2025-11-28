@@ -61,10 +61,14 @@ class LLMReRanker(pt.Transformer):
         self.text_key = text_key  # to allow fields other than 'text' to be used for reranking
         self.ushaped_positioning = ushaped_positioning
 
+    @pta.transform.by_query(add_ranks=False)
     def transform(self, retrieved):
+        
+        # validation and inspection support
         pta.validate.result_frame(retrieved, extra_columns=['query', self.text_key])
         if not len(retrieved):
             return pd.DataFrame([], columns=retrieved.columns.tolist() + ["score_0", "docno_orig"])
+        
         retrieved = retrieved.copy()
         query = Query(text=retrieved.iloc[0].query, qid=retrieved.iloc[0].qid)
         candidates = []
@@ -133,16 +137,18 @@ class PointwiseReranker(pt.Transformer):
         self.model = PeftModel.from_pretrained(base_model, model_path)
         self.model.to(self.device)
         self.model.eval()
+
+    @pta.transform.by_query(add_ranks=True)
     def transform(self, retrieved):
         """
         Rerank candidates in a DataFrame using the pointwise RankLLama model.
         Assumptions:
-          - The input DataFrame `retrieved` has a column 'query' (same for all rows).
+          - The input DataFrame `retrieved` has a column 'qid' that distinguishes the 'query' column.
           - Each candidate row has a unique document id in 'docno' and text in the column specified by `text_key`.
         Returns:
           A DataFrame with updated 'score' and 'rank' columns.
         """
-        # inspection support
+        # validation and inspection support
         pta.validate.result_frame(retrieved, extra_columns=['query', self.text_key])
         if not len(retrieved):
             cols = retrieved.columns.tolist()
@@ -183,8 +189,6 @@ class PointwiseReranker(pt.Transformer):
             scores.extend(batch_scores)
         # Assign new scores and compute ranks based on descending score.
         retrieved['score'] = scores
-        retrieved.sort_values(by='score', ascending=False, inplace=True)
-        retrieved['rank'] = range(len(retrieved))
         return retrieved
 
 
@@ -412,11 +416,12 @@ class Rank1Reranker(pt.Transformer):
             token_counts = [prev + new for prev, new in zip(token_counts, new_token_counts)]
             self.force_rethink -= 1
         return scores
+    
+    @pta.transform.by_query(add_ranks=True)
     def transform(self, retrieved: pd.DataFrame) -> pd.DataFrame:
         """
         Rerank the candidates in the DataFrame using rank1.
         Assumptions:
-          - The DataFrame has a column "query" (the same for all rows).
           - Each row contains a unique document id ("docno") and the candidate passage text in column `self.text_key`.
         Returns:
           A DataFrame with new "score" and "rank" columns.
@@ -435,6 +440,4 @@ class Rank1Reranker(pt.Transformer):
         scores = self.predict(input_to_rerank)
         # Assign scores and compute reciprocal ranking.
         retrieved['score'] = scores
-        retrieved.sort_values(by='score', ascending=False, inplace=True)
-        retrieved['rank'] = range(len(retrieved))
         return retrieved
