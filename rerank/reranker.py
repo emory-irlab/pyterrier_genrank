@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List
 
-from tqdm import tqdm
+from pyterrier import tqdm
 
 from rerank.rankllm import RankLLM
 from rerank.data import Request, Result, DataWriter
@@ -43,7 +43,7 @@ class Reranker:
             List[Result]: A list containing the reranked candidates.
         """
         results = []
-        for request in tqdm(requests):
+        for request in tqdm(requests, unit='window'):
             result = self._agent.sliding_windows(
                 request,
                 rank_start=max(rank_start, 0),
