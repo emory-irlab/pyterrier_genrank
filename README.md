@@ -67,7 +67,7 @@ for TREC-DL 2019:
 
 Read the paper for detailed results [here](PyTerrier_GenRank_Paper.pdf). 
 
-See [this notebook](examples/trecd2019.ipynb) for an example of how to run experiments like this.
+See [this notebook](examples/trecdl2019.ipynb) for an example of how to run experiments like this.
 
 The [reranker interface](rerank/__init__.py) takes additional parameters that could be modified.
 
